@@ -756,6 +756,11 @@ static int imx8mp_clocks_probe(struct platform_device *pdev)
 
 	imx_clk_init_on(np, hws);
 
+	if (of_machine_is_compatible("engi,imx8-smarcore")) {
+		clk_set_parent(hws[IMX8MP_CLK_CLKOUT1_SEL]->clk, hws[IMX8MP_CLK_24M]->clk);
+		clk_set_parent(hws[IMX8MP_CLK_CLKOUT2_SEL]->clk, hws[IMX8MP_CLK_32K]->clk);
+	}
+
 	imx_register_uart_clocks();
 
 	return 0;
