@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0
 
 dtb-$(CONFIG_ARCH_MXC) += \
+			  imx8mm-icore-ctouch2.dtb \
+			  imx8mm-icore-starterkit.dtb \
 			  imx8mp-icore-2e-net-phy.dtb \
 			  imx8mp-icore-2e-ctouch2.dtb \
 			  imx8mp-icore-2e-starterkit.dtb \
