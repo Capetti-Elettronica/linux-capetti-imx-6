@@ -21,6 +21,7 @@
 
 #include <linux/gpio/consumer.h>
 #include <linux/gpio/machine.h>
+#include <linux/platform_device.h>
 
 #include "gpiolib.h"
 #include "gpiolib-of.h"
@@ -813,6 +814,65 @@ static int of_gpiochip_scan_gpios(struct gpio_chip *chip)
 
 	return 0;
 }
+
+#ifdef CONFIG_GPIO_SYSFS
+
+static struct of_device_id gpio_export_ids[] = {
+	{ .compatible = "gpio-export" },
+	{ /* sentinel */ }
+};
+
+static int of_gpio_export_probe(struct platform_device *pdev)
+{
+	struct device_node *np = pdev->dev.of_node;
+	struct device_node *cnp;
+	u32 val;
+	int nb = 0;
+
+	for_each_child_of_node(np, cnp) {
+		const char *name = NULL;
+		struct gpio_desc *desc;
+		bool dmc;
+
+		of_property_read_string(cnp, "gpio-export,name", &name);
+
+		enum gpiod_flags flags;
+
+		if (!of_property_read_u32(cnp, "gpio-export,output", &val))
+			flags |= val ? GPIOD_OUT_HIGH : GPIOD_OUT_LOW;
+		else
+			flags |= GPIOD_IN;
+
+		desc = devm_fwnode_gpiod_get_index(&pdev->dev, of_node_to_fwnode(cnp),
+						    NULL, 0, flags, name);
+		if (!gpiod_not_found(desc) && IS_ERR(desc)) {
+			pr_err("%s: gpio %s not found %d\n", __func__, name,
+			       PTR_ERR_OR_ZERO(desc));
+			return PTR_ERR(desc);
+		}
+
+		dmc = of_property_read_bool(cnp, "gpio-export,direction_may_change");
+		gpiod_export_with_name(desc, dmc, name);
+		nb++;
+	}
+
+	dev_info(&pdev->dev, "%d gpio(s) exported\n", nb);
+
+	return 0;
+}
+
+static struct platform_driver gpio_export_driver = {
+	.driver		= {
+		.name		= "gpio-export",
+		.owner	= THIS_MODULE,
+		.of_match_table	= of_match_ptr(gpio_export_ids),
+	},
+	.probe		= of_gpio_export_probe,
+};
+
+module_platform_driver(gpio_export_driver);
+
+#endif
 
 #ifdef CONFIG_OF_DYNAMIC
 /**
