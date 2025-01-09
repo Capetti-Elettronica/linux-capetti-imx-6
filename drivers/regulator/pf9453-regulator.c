@@ -664,7 +664,7 @@ static int pf9453_i2c_probe(struct i2c_client *i2c)
 	}
 
 	/* Check your board and dts for match the right pmic */
-	if ((device_id >> 4) != 0xB && type == PF9453_TYPE_PF9453) {
+	if ((device_id >> 4) == 0xB && type == PF9453_TYPE_PF9453) {
 		dev_err(&i2c->dev, "Device id(%x) mismatched\n",
 			device_id >> 4);
 		return -EINVAL;
@@ -698,7 +698,7 @@ static int pf9453_i2c_probe(struct i2c_client *i2c)
 	if (ret != 0) {
 		dev_err(pf9453->dev, "Failed to request IRQ: %d\n",
 			pf9453->irq);
-		return ret;
+		//return ret;
 	}
 	/* Unmask all interrupt except PWRON/WDOG/RSVD */
 	ret = pf9453_pmic_write(pf9453, PF9453_REG_INT1_MSK,
