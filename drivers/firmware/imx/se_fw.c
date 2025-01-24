@@ -2108,11 +2108,13 @@ static int se_fw_probe(struct platform_device *pdev)
 		}
 	}
 
-	ret = imx_fetch_soc_info(priv, info);
-	if (ret) {
-		dev_err(dev,
-			"failed[%d] to register SoC device\n", ret);
-		goto exit;
+	if (info->socdev) {
+		ret = imx_fetch_soc_info(priv, info);
+		if (ret) {
+			dev_err(dev,
+				"failed[%d] to register SoC device\n", ret);
+			goto exit;
+		}
 	}
 
 	/* Assumed v2x_state_check is enabled for i.MX95 only. */
