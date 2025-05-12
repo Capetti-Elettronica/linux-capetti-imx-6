@@ -60,13 +60,13 @@
 		default-brightness-level = <80>;
 	};
 
-	lvds_panel {
-		compatible = "evervision,vgg804821";
+	panel {
+		compatible = "winstar,wf50ftwagdng0";
 		backlight = <&backlight>;
 		status = "okay";
 
 		port {
-			panel_in_lvds: endpoint {
+			panel_in: endpoint {
 				remote-endpoint = <&display_out>;
 			};
 		};
@@ -159,7 +159,7 @@
 		port@1 {
 			reg = <1>;
 			display_out: endpoint {
-				remote-endpoint = <&panel_in_lvds>;
+				remote-endpoint = <&panel_in>;
 			};
 		};
 	};
