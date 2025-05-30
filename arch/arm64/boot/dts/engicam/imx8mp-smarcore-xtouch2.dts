@@ -436,6 +436,7 @@
 		pinctrl-0 = <&pinctrl_pmic>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+		engi,pmic_rst-warm-reset;
 
 		regulators {
 			buck1: BUCK1 {
