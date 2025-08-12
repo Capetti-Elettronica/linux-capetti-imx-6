@@ -31,6 +31,13 @@
 		#size-cells = <2>;
 	};
 
+	clk_ov5640_fixed: clock {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <24000000>;
+		status = "okay";
+	};
+
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x0 0x80000000 0 0x80000000>;
@@ -406,6 +413,106 @@
 		compatible = "nxp,pcf8523";
 		reg = <0x68>;
 	};
+
+	ov5640_0: ov5640_mipi@3c {
+		compatible = "ov5640_mainline";
+		reg = <0x3c>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_csi0>;
+		clocks = <&clk_ov5640_fixed>;
+		clock-names = "xclk";
+		csi_id = <0>;
+		assigned-clock-rates = <24000000>;
+		powerdown-gpios = <&gpio5 7 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
+		mclk = <24000000>;
+		mclk_source = <0>;
+		mipi_csi;
+		status = "okay";
+
+		port {
+			ov5640_mipi_0_ep: endpoint {
+				remote-endpoint = <&mipi_csi0_ep>;
+				data-lanes = <1 2>;
+				clock-lanes = <0>;
+			};
+		};
+	};
+};
+
+&dphy_rx {
+	status = "disabled";
+};
+
+&combo_rx {
+	status = "okay";
+};
+
+&mipi_csi1 {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			mipi_csi0_ep: endpoint {
+				remote-endpoint = <&ov5640_mipi_0_ep>;
+				data-lanes = <1 2>;
+				clock-lanes = <0>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+				mipi_csi1_out: endpoint {
+				remote-endpoint = <&formatter_1_in>;
+			};
+		};
+	};
+};
+
+&csi_pixel_formatter_1 {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			formatter_1_in: endpoint {
+				remote-endpoint = <&mipi_csi1_out>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			formatter_1_out: endpoint {
+				remote-endpoint = <&isi_in_3>;
+			};
+		};
+	};
+};
+
+&isi {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@3 {
+			reg = <3>;
+
+			isi_in_3: endpoint {
+				remote-endpoint = <&formatter_1_out>;
+			};
+		};
+	};
 };
 
 &lpi2c4 {
@@ -671,6 +778,13 @@
 		fsl,pins = <
 			IMX95_PAD_GPIO_IO30__LPI2C4_SDA			0x40000b9e
 			IMX95_PAD_GPIO_IO31__LPI2C4_SCL			0x40000b9e
+		>;
+	};
+
+	pinctrl_csi0: csi0grp {
+		fsl,pins = <
+			IMX95_PAD_XSPI1_DATA7__GPIO5_IO_BIT7	0x31e /* CAM0_PWRDN */
+			IMX95_PAD_XSPI1_DQS__GPIO5_IO_BIT8		0x31e /* CAM0_nRST */
 		>;
 	};
 
