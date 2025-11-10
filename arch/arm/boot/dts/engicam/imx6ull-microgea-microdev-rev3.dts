@@ -9,7 +9,9 @@
 
 /dts-v1/;
 
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 #include "../nxp/imx/imx6ull.dtsi"
 
 / {
@@ -90,17 +92,17 @@
 			gpios = <&gpio4 14 0>;
 		};
 
-		GPIO_PWM {
-			gpio-export,name = "GPIO_PWM";
-			gpio-export,output = <0>;
+		/* INT_ADC {
+			gpio-export,name = "ADC_ALERT";
+			gpio-export,input = <1>;
 			gpios = <&gpio2 7 0>;
-		};
+		}; */
 
-		GPIO_TM {
-			gpio-export,name = "GPIO_TM";
-			gpio-export,output = <0>;
+		/* INT_MCP {
+			gpio-export,name = "MCP_INT";
+			gpio-export,input = <1>;
 			gpios = <&gpio1 15 0>;
-		};
+		}; */
 
 		UMTS_EN {
 			gpio-export,name = "UMTS_EN";
@@ -203,8 +205,8 @@
 				MX6UL_PAD_SNVS_TAMPER0__GPIO5_IO00   	0x1b0b0 /* WL_REF_ON */
 				MX6UL_PAD_SNVS_TAMPER1__GPIO5_IO01   	0x1b0b0 /* BT_REF_ON */
 				MX6UL_PAD_NAND_CE1_B__GPIO4_IO14   		0x1b0b0 /* ETH_ALIM_EN */
-				MX6UL_PAD_ENET1_RX_ER__GPIO2_IO07		0x1b0b0 /* GPIO_PWM */
-				MX6UL_PAD_JTAG_TRST_B__GPIO1_IO15		0x1b0b0 /* JTAG_TRST */
+				MX6UL_PAD_ENET1_RX_ER__GPIO2_IO07		0x1b0b0 /* ADC_ALERT */
+				/* MX6UL_PAD_JTAG_TRST_B__GPIO1_IO15		0x1b0b0 JTAG_TRST (MCP_INT) */
 				MX6UL_PAD_GPIO1_IO02__GPIO1_IO02 		0x1b0b0 /* UMTS_EN */
 				MX6UL_PAD_SNVS_TAMPER5__GPIO5_IO05		0x1b0b0 /* UMTS_ON */
 				MX6UL_PAD_UART3_RX_DATA__GPIO1_IO25		0x1b0b0 /* UMTS_RESET */
@@ -358,6 +360,12 @@
 			>;
 		};
 
+		pinctrl_mcp_int: mcpintgrp {
+			fsl,pins = <
+				MX6UL_PAD_JTAG_TRST_B__GPIO1_IO15 0x1b0b0
+			>;
+		};
+
 	};
 };
 
@@ -467,4 +475,135 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
+
+adc: adc101c@54 {
+		compatible = "ti,adc101c";
+		reg = <0x54>;
+		vref-supply = <&reg_out_3v3>;
+		label = "adc121";
+	};
+
+	led-controller@14 {
+		compatible = "ti,lp5012";
+		reg = <0x14>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		multi-led@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0>;
+			color = <LED_COLOR_ID_RGB>;
+			function = LED_FUNCTION_HEARTBEAT;
+			label = "led_status";
+
+			led@0 {
+					reg = <0x0>;
+					color = <LED_COLOR_ID_RED>;
+			};
+
+			led@1 {
+					reg = <0x1>;
+					color = <LED_COLOR_ID_GREEN>;
+			};
+
+			led@2 {
+					reg = <0x2>;
+					color = <LED_COLOR_ID_BLUE>;
+			};
+		};
+
+		multi-led@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x1>;
+			color = <LED_COLOR_ID_RGB>;
+			function = LED_FUNCTION_ACTIVITY;
+			label = "led_web";
+
+			led@3 {
+					reg = <0x3>;
+					color = <LED_COLOR_ID_RED>;
+			};
+
+			led@4 {
+					reg = <0x4>;
+					color = <LED_COLOR_ID_GREEN>;
+			};
+
+			led@5 {
+					reg = <0x5>;
+					color = <LED_COLOR_ID_BLUE>;
+			};
+		};
+
+		multi-led@2 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x2>;
+			color = <LED_COLOR_ID_RGB>;
+			function = LED_FUNCTION_ALARM;
+			label = "led_bus";
+
+			led@6 {
+					reg = <0x6>;
+					color = <LED_COLOR_ID_RED>;
+			};
+
+			led@7 {
+					reg = <0x7>;
+					color = <LED_COLOR_ID_GREEN>;
+			};
+
+			led@8 {
+					reg = <0x8>;
+					color = <LED_COLOR_ID_BLUE>;
+			};
+		};
+
+		multi-led@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x3>;
+			color = <LED_COLOR_ID_RGB>;
+			function = LED_FUNCTION_WLAN;
+			label = "led_diag";
+
+			led@9 {
+				reg = <0x9>;
+				color = <LED_COLOR_ID_RED>;
+			};
+
+			led@a {
+				reg = <0xa>;
+				color = <LED_COLOR_ID_GREEN>;
+			};
+
+			led@b {
+				reg = <0xb>;
+				color = <LED_COLOR_ID_BLUE>;
+			};
+		};
+	};
+
+	ioext: mcp23017@20 {
+		compatible = "microchip,mcp23017";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x20>;
+
+		pinctrl-names = "default";
+    	pinctrl-0 = <&pinctrl_mcp_int>;
+
+		/* IRQ LINK */
+		interrupt-parent = <&gpio1>;
+		interrupts = <15 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-controller;
+        #interrupt-cells = <2>;
+        microchip,irq-mirror;
+
+		/* Nomi dei GPIO, da 0 a 15 */
+    	gpio-line-names = "OUT_B","OUT_A","WAKE_CMD","NMRST","MBOOT","VOUT_EN","EN_I2COUT","GP7",
+                      "REED","IN_A","IN_B","MCO","WAKE","FACTORY_RESET","TOUCH_SENS","GP15";
+	};
 };
