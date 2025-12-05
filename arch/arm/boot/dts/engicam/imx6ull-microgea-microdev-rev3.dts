@@ -598,6 +598,7 @@ adc: adc101c@54 {
 		/* IRQ LINK */
 		interrupt-parent = <&gpio1>;
 		interrupts = <15 IRQ_TYPE_LEVEL_LOW>;
+		linux,pm-wakeup;
 		interrupt-controller;
         #interrupt-cells = <2>;
         microchip,irq-mirror;
