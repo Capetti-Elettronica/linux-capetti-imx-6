@@ -93,17 +93,17 @@
 			gpios = <&gpio4 14 0>;
 		};
 
-		/* INT_ADC {
+		INT_ADC {
 			gpio-export,name = "ADC_ALERT";
 			gpio-export,input = <1>;
 			gpios = <&gpio2 7 0>;
-		}; */
+		};
 
-		/* INT_MCP {
+		INT_MCP {
 			gpio-export,name = "MCP_INT";
 			gpio-export,input = <1>;
 			gpios = <&gpio1 15 0>;
-		}; */
+		};
 
 		UMTS_EN {
 			gpio-export,name = "UMTS_EN";
