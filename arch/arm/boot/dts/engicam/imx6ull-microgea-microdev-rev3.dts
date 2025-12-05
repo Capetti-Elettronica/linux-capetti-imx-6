@@ -11,6 +11,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/leds/common.h>
 #include "../nxp/imx/imx6ull.dtsi"
 
@@ -597,7 +598,7 @@ adc: adc101c@54 {
 
 		/* IRQ LINK */
 		interrupt-parent = <&gpio1>;
-		interrupts = <15 IRQ_TYPE_LEVEL_FALLING>;
+		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
 		linux,pm-wakeup;
 		interrupt-controller;
         #interrupt-cells = <2>;
